@@ -19,8 +19,9 @@ from datetime import datetime, timedelta
 class NewSeedling:
     def __init__(self, db):
         self.db = db
-
-    #for terminal testing before tkinter implementation for this file
+####                                                     ####
+#### BELOW COMMENTED OUT - WAS USED FOR TERMINAL TESTING ####
+####                                                     ####
     # def show_plant_options(self):
     #     cur = self.db.conn.execute("""
     #         SELECT id, seed_variety, days_to_harvest
@@ -54,16 +55,23 @@ class NewSeedling:
     #     for row in rows:
     #         print(f"ID {row['id']}: {row['bed_name']}")
     #     return rows
-
+    #
     def populate_seedling(self, plant_type_id, bed_info_id, seedling_nickname, date_planted):
-    # make sure user entry is in correct format
-        seedling_nickname = (seedling_nickname or "").strip()
-        date_planted = (date_planted or "").strip()
+    # Remove trailing spaces from seedling_nickname and date_planted, ensure values are not empty,
+        #seedling_nickname = (seedling_nickname or "").strip()
+        #date_planted = (date_planted or "").strip()
+        seedling_nickname = seedling_nickname.strip()
+        date_planted = date_planted.strip()
 
         if seedling_nickname == "":
             raise ValueError("Seedling Name cannot be empty!")
         if date_planted == "":
             raise ValueError("Planting date cannot be empty!")
+
+        try:
+            planting_date_check = datetime.strptime(date_planted, "%Y-%m-%d").date()
+        except ValueError:
+            raise ValueError("Date Planted must be in YYYY-MM-DD format.")
 
         try:
             plant_type_id = int(str(plant_type_id).strip())
@@ -75,10 +83,10 @@ class NewSeedling:
         except (ValueError, TypeError):
             raise ValueError("Bed ID must be a whole number.")
 
-        try:
-            planting_date_check = datetime.strptime(date_planted, "%Y-%m-%d").date()
-        except ValueError:
-            raise ValueError("Date Planted must be in YYYY-MM-DD format.")
+        #try:
+         #   planting_date_check = datetime.strptime(date_planted, "%Y-%m-%d").date()
+        #except ValueError:
+            #raise ValueError("Date Planted must be in YYYY-MM-DD format.")
 
         cur = self.db.conn.execute("""
             SELECT days_to_harvest
@@ -109,7 +117,7 @@ class NewSeedling:
         expected_harvest_date = planting_date_check + timedelta(days=days_to_harvest)
         expected_harvest_date = expected_harvest_date.strftime("%Y-%m-%d")
 
-
+        #if no errors set off in section above, enter the user data into the db. while db is open, check that the users nickname isn't a duplicate.
         try:
             cur = self.db.conn.execute("""
                     INSERT INTO Seedlings (plant_type_id, bed_info_id, seedling_nickname, date_planted, expected_harvest_date)
@@ -123,7 +131,9 @@ class NewSeedling:
         except sqlite3.IntegrityError:
             raise ValueError(f"{seedling_nickname} already exists. Please enter a different nickname.")
 
-    #for running in the terminal
+####                                                     ####
+#### BELOW COMMENTED OUT - WAS USED FOR TERMINAL TESTING ####
+####                                                     ####
 #     def user_input_seedling(self):
 #         print("Add a new Seedling:")
 #
@@ -149,7 +159,6 @@ class NewSeedling:
 #
 #         print(f"Saved successfully! The Unique ID for {seedling_nickname} is {new_seedling_id}.")
 #
-# #below for testing in console
 # if __name__ == "__main__":
 #     from main import LeafLogDB
 #     db = LeafLogDB()

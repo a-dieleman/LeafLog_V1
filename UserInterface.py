@@ -179,18 +179,18 @@ class AddNewSeed(tk.Frame):
                 f"Saved successfully! The unique ID for {seed_variety.strip()} is {new_seed_id}."
             )
 
-            self.clear_entries()
+            #self.clear_entries()
             self.controller.show_frame(Home)
 
         except ValueError as e:
             messagebox.showerror("input Error", str(e))
 
-    def clear_entries(self):
-        self.seed_variety_entry.delete(0, tk.END)
-        self.days_to_germinate_entry.delete(0, tk.END)
-        self.days_to_harvest_entry.delete(0, tk.END)
-        self.seed_depth_entry.delete(0, tk.END)
-        self.support_type_entry.delete(0, tk.END)
+    # def clear_entries(self):
+    #     self.seed_variety_entry.delete(0, tk.END)
+    #     self.days_to_germinate_entry.delete(0, tk.END)
+    #     self.days_to_harvest_entry.delete(0, tk.END)
+    #     self.seed_depth_entry.delete(0, tk.END)
+    #     self.support_type_entry.delete(0, tk.END)
 
     #def gray_placeholder(value, placeholder):
      #   return "" if value == placeholder else value
@@ -295,24 +295,27 @@ class AddNewBed(tk.Frame):
                 f"Saved successfully! The unique ID for {bed_name.strip()} is {new_bed_id}."
             )
 
-            self.clear_entries()
+            #self.clear_entries()
             self.controller.show_frame(Home)
 
         except ValueError as e:
-            messagebox.showerror("input Error", str(e))
+            messagebox.showerror("Input Error", str(e))
 
-    def clear_entries(self):
-        self.bed_name_entry.delete(0, tk.END)
-        self.soil_depth_entry.delete(0, tk.END)
-        self.soil_type_entry.delete(0, tk.END)
-        self.sun_exposure_entry.delete(0, tk.END)
-        self.shade_structure_entry.delete(0, tk.END)
+    # def clear_entries(self):
+    #     self.bed_name_entry.delete(0, tk.END)
+    #     self.soil_depth_entry.delete(0, tk.END)
+    #     self.soil_type_entry.delete(0, tk.END)
+    #     self.sun_exposure_entry.delete(0, tk.END)
+    #     self.shade_structure_entry.delete(0, tk.END)
 
 class AddNewSeedling(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent, bg="khaki1")
         self.controller = controller
         self.seedling_handler = NewSeedling(controller.db)
+
+        self.plant_type_dropdown_format = {}
+        self.bed_info_dropdown_format = {}
 
         tk.Label(
             self,
@@ -331,7 +334,7 @@ class AddNewSeedling(tk.Frame):
             font=("Comfortaa",12),
             bg="khaki1"
         ).grid(row=0,column=0, padx=5,pady=5, sticky="e")
-        self.plant_type_dropdown = ttk.Combobox(newSeedling_FormFrame, width=40, state="readonly")
+        self.plant_type_dropdown = ttk.Combobox(newSeedling_FormFrame, width=37, state="readonly")
         self.plant_type_dropdown.grid(row=0,column=1,padx=5, pady=5)
 
         #box for bed_info_id (dropdown needed)
@@ -341,7 +344,7 @@ class AddNewSeedling(tk.Frame):
             font=("Comfortaa",12),
             bg = "khaki1"
         ).grid(row=1, column=0, padx=5, pady=5, sticky="e")
-        self.garden_bed_dropdown = ttk.Combobox(newSeedling_FormFrame, width=40, state="readonly")
+        self.garden_bed_dropdown = ttk.Combobox(newSeedling_FormFrame, width=37, state="readonly")
         self.garden_bed_dropdown.grid(row=1,column=1,padx=5,pady=5)
 
         #box for seedling_nickname
@@ -362,7 +365,7 @@ class AddNewSeedling(tk.Frame):
             bg="khaki1"
         ).grid(row=3, column=0, padx=5, pady=5, sticky="e")
         self.date_planted_entry = ttk.Entry(newSeedling_FormFrame, width=40)
-        self.seedling_nickname_entry.grid(row=3, column=1, padx=5, pady=5)
+        self.date_planted_entry.grid(row=3, column=1, padx=5, pady=5)
 
         #save button
         ttk.Button(
@@ -378,37 +381,76 @@ class AddNewSeedling(tk.Frame):
             command=lambda: controller.show_frame(Home)
         ).pack(side="bottom", pady = 30)
 
+        self.display_dropdown_options()
+
+    def display_dropdown_options(self):
+        cur = self.controller.db.conn.execute("""
+            SELECT id, seed_variety
+            FROM PlantType
+            ORDER BY seed_variety ASC
+        """)
+        plant_rows = cur.fetchall()
+
+        plant_list_display = ["---- Select from Dropdown ----"]
+        self.plant_type_dropdown_format = {"---- Select from Dropdown ----": None}
+
+        for row in plant_rows:
+            list_display = f"{row['seed_variety']}"
+            plant_list_display.append(list_display)
+            self.plant_type_dropdown_format[list_display] = row["id"]
+
+        self.plant_type_dropdown["values"] = plant_list_display
+        if plant_list_display:
+            self.plant_type_dropdown.current(0)
+        else:
+            self.plant_type_dropdown.set("")
+
+        cur = self.controller.db.conn.execute("""
+            SELECT id, bed_name
+            FROM BedInfo
+            ORDER BY bed_name ASC
+        """)
+        bed_rows = cur.fetchall()
+
+        bed_list_display = ["---- Select from Dropdown ----"]
+        self.bed_info_dropdown_format = {"---- Select from Dropdown ----": None}
+
+        for row in bed_rows:
+            list_display = f"{row['bed_name']}"
+            bed_list_display.append(list_display)
+            self.bed_info_dropdown_format[list_display] = row["id"]
+
+        self.garden_bed_dropdown["values"] = bed_list_display
+        if bed_list_display:
+            self.garden_bed_dropdown.current(0)
+        else:
+            self.garden_bed_dropdown.set("")
+
     #save info below -  needs updated - current is copy from new bed section
-    # def save_new_bed(self):
-    #     bed_name = self.bed_name_entry.get()
-    #     soil_depth = self.soil_depth_entry.get()
-    #     soil_type = self.soil_type_entry.get()
-    #     sun_exposure = self.sun_exposure_entry.get()
-    #     shade_structure = self.shade_structure_entry.get()
-    #
-    #     try:
-    #         new_bed_id = self.bed_handler.populate_bed(
-    #             bed_name,
-    #             soil_depth,
-    #             soil_type,
-    #             sun_exposure,
-    #             shade_structure
-    #         )
-    #
-    #         messagebox.showinfo(
-    #             "Success",
-    #             f"Saved successfully! The unique ID for {bed_name.strip()} is {new_bed_id}."
-    #         )
-    #
-    #         self.clear_entries()
-    #         self.controller.show_frame(Home)
-    #
-    #     except ValueError as e:
-    #         messagebox.showerror("input Error", str(e))
-    #
-    # def clear_entries(self):
-    #     self.bed_name_entry.delete(0, tk.END)
-    #     self.soil_depth_entry.delete(0, tk.END)
-    #     self.soil_type_entry.delete(0, tk.END)
-    #     self.sun_exposure_entry.delete(0, tk.END)
-    #     self.shade_structure_entry.delete(0, tk.END)
+    def save_seedling(self):
+        chosen_seed_type = self.plant_type_dropdown.get()
+        chosen_bed_type = self.garden_bed_dropdown.get()
+        seedling_nickname = self.seedling_nickname_entry.get()
+        date_planted = self.date_planted_entry.get()
+
+        try:
+            plant_type_id = self.plant_type_dropdown_format[chosen_seed_type]
+            bed_info_id = self.bed_info_dropdown_format[chosen_bed_type]
+
+            new_seedling_id = self.seedling_handler.populate_seedling(
+                plant_type_id,
+                bed_info_id,
+                seedling_nickname,
+                date_planted
+            )
+
+            messagebox.showinfo(
+                "Success",
+                f"Saved successfully! The unique ID for {seedling_nickname.strip()} is {new_seedling_id}."
+            )
+
+            #self.clear_entries()
+            self.controller.show_frame(Home)
+
+        except ValueError as e:
+            messagebox.showerror("input Error", str(e))

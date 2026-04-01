@@ -21,7 +21,9 @@ class NewProgress:
     def __init__(self, db):
         self.db = db
 
-    #give user a list of available seedlings from the db
+####                                                     ####
+#### BELOW COMMENTED OUT - WAS USED FOR TERMINAL TESTING ####
+####                                                     ####
     # def show_seedling_options(self):
     #     cur = self.db.conn.execute("""
     #         SELECT id, seedling_nickname
@@ -37,7 +39,8 @@ class NewProgress:
     #     for row in rows:
     #         print(f"ID {row['id']}:{row['seedling_nickname']}")
     #     return rows
-    #how to handle user entered data
+
+#how to handle user entered data
     def populate_progress(self, seedlings_id, date_recorded, sprout_date, harvest_quantity, disease_symptom, progress_photo):
 
         date_recorded = (date_recorded or "").strip()
@@ -60,7 +63,6 @@ class NewProgress:
             sprout_date = None
         else:
             raise ValueError("Input must be yes, no, or blank.")
-
 
         #validate the number for harvest_quantity
         if str(harvest_quantity).strip()=="":
@@ -87,6 +89,7 @@ class NewProgress:
         if seedling_result is None:
             raise ValueError(f"Seedling ID {seedlings_id} doesn't exist.")
 
+        #Properly formatted data will be entered into the database, otherwise display error
         try:
             cur = self.db.conn.execute("""
                 INSERT INTO Progress (seedlings_id, date_recorded, sprout_date, harvest_quantity, disease_symptom, progress_photo)
@@ -99,7 +102,9 @@ class NewProgress:
         except sqlite3.IntegrityError as e:
             raise ValueError(f"Unable to save progress due to {e}")
 
-#     #collect user generated information - this section for the terminal testing
+####                                                     ####
+#### BELOW COMMENTED OUT - WAS USED FOR TERMINAL TESTING ####
+####                                                     ####
 #     def user_input_progress(self):
 #         print("Choose a seedling to add progress info to:")
 #
@@ -117,8 +122,6 @@ class NewProgress:
 #
 #         print(f"Progress has been recorded. The unique ID for this entry is {new_progress_id}.")
 #
-#
-# #below for testing in console
 # if __name__ == "__main__":
 #     from main import LeafLogDB
 #     db = LeafLogDB()
