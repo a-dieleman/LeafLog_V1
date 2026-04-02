@@ -3,6 +3,7 @@ from tkinter import ttk, messagebox
 from NewSeedType import NewSeedType
 from NewBed import NewBed
 from NewSeedling import NewSeedling
+from TrackProgress import NewProgress
 
 print("userinterface.py loaded")
 #class for the basic window layout that will be consistent across all windows and providing db access via UI
@@ -447,6 +448,154 @@ class AddNewSeedling(tk.Frame):
             messagebox.showinfo(
                 "Success",
                 f"Saved successfully! The unique ID for {seedling_nickname.strip()} is {new_seedling_id}."
+            )
+
+            #self.clear_entries()
+            self.controller.show_frame(Home)
+
+        except ValueError as e:
+            messagebox.showerror("input Error", str(e))
+
+class AddNewProgress(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent, bg="orchid1")
+        self.controller = controller
+        self.progress_handler = NewProgress(controller.db)
+
+        self.seedlings_nickname_dropdown_format = {}
+
+        tk.Label(
+            self,
+            text="Record Seedling Progress",
+            font=("Calibri", 24),
+            bg="orchid1"
+        ).pack(pady=10)
+
+        newProgress_FormFrame = tk.Frame(self,bg="orchid1")
+        newProgress_FormFrame.pack(pady=10)
+
+        #box for seedlings_id(dropdown needed)
+        tk.Label(
+            newProgress_FormFrame,
+            text="Choose a seedling from the dropdown:",
+            font=("Comfortaa",12),
+            bg="orchid1"
+        ).grid(row=0,column=0, padx=5,pady=5, sticky="e")
+        self.seedling_nickname_dropdown = ttk.Combobox(newProgress_FormFrame, width=37, state="readonly")
+        self.seedling_nickname_dropdown.grid(row=0,column=1,padx=5, pady=5)
+
+        #box for date_recorded
+        tk.Label(
+            newProgress_FormFrame,
+            text="From the dropdown, choose the bed this seed was planted in:",
+            font=("Comfortaa",12),
+            bg = "orchid1"
+        ).grid(row=1, column=0, padx=5, pady=5, sticky="e")
+        self.date_recorded_entry = ttk.Entry(newProgress_FormFrame, width=40)
+        self.date_recorded_entry.grid(row=1,column=1,padx=5,pady=5)
+
+        #box for sprout_date
+        tk.Label(
+            newProgress_FormFrame,
+            text="Had the plant sprouted on the date recorded? Yes/No",
+            font=("Comfortaa", 12),
+            bg="orchid1"
+        ).grid(row=2, column=0, padx=5, pady=5, sticky="e")
+        self.sprout_date_entry = ttk.Entry(newProgress_FormFrame, width=40)
+        self.sprout_date_entry.grid(row=2, column=1, padx=5, pady=5)
+
+        #box for harvest_quantity
+        tk.Label(
+            newProgress_FormFrame,
+            text="Number of veggies harvested:",
+            font=("Comfortaa",12),
+            bg="orchid1"
+        ).grid(row=3, column=0, padx=5, pady=5, sticky="e")
+        self.harvest_quantity_entry = ttk.Entry(newProgress_FormFrame, width=40)
+        self.harvest_quantity_entry.grid(row=3, column=1, padx=5, pady=5)
+
+        #box for disease_symptom
+        tk.Label(
+            newProgress_FormFrame,
+            text="Disease Symptoms (if any):",
+            font=("Comfortaa",12),
+            bg="orchid1"
+        ).grid(row=4, column=0, padx=5, pady=5, sticky="e")
+        self.disease_symptom_entry = ttk.Entry(newProgress_FormFrame, width=40)
+        self.disease_symptom_entry.grid(row=4, column=1, padx=5, pady=5)
+
+        #box for progress_photo
+        tk.Label(
+            newProgress_FormFrame,
+            text="Choose a Progress Photo:",
+            font=("Comfortaa",12),
+            bg="orchid1"
+        ).grid(row=5, column=0, padx=5, pady=5, sticky="e")
+        self.progress_photo_entry = ttk.Entry(newProgress_FormFrame, width=40)
+        self.progress_photo_entry.grid(row=5, column=1, padx=5, pady=5)
+
+        #save button
+        ttk.Button(
+            self,
+            text="Save",
+            command=self.save_progress
+        ).pack(pady=10)
+
+        #back button
+        ttk.Button(
+            self,
+            text="Back to Homepage",
+            command=lambda: controller.show_frame(Home)
+        ).pack(side="bottom", pady = 30)
+
+        self.display_dropdown_options()
+
+    def display_dropdown_options(self):
+        cur = self.controller.db.conn.execute("""
+            SELECT id, seedling_nickname
+            FROM Seedlings
+            ORDER BY seedling_nickname ASC
+        """)
+        seedling_rows = cur.fetchall()
+
+        seedling_nickname_display = ["---- Select from Dropdown ----"]
+        self.seedling_nickname_dropdown_format = {"---- Select from Dropdown ----": None}
+
+        for row in seedling_rows:
+            list_display = row["seedling_nickname"]
+            seedling_nickname_display.append(list_display)
+            self.seedling_nickname_dropdown_format[list_display] = row["id"]
+
+        self.seedling_nickname_dropdown["values"] = seedling_nickname_display
+        if seedling_nickname_display:
+            self.seedling_nickname_dropdown.current(0)
+        else:
+            self.seedling_nickname_dropdown.set("")
+
+    #save info below -  needs updated - current is copy from new bed section
+    def save_progress(self):
+        chosen_seedling_nickname = self.seedling_nickname_dropdown.get()
+        date_recorded = self.date_recorded_entry.get()
+        sprout_date = self.sprout_date_entry.get()
+        harvest_quantity = self.harvest_quantity_entry.get()
+        disease_symptom = self.disease_symptom_entry.get()
+        progress_photo = self.progress_photo_entry.get()
+
+        try:
+            seedlings_id = self.seedlings_nickname_dropdown_format[chosen_seedling_nickname]
+
+            new_progress_id = self.progress_handler.populate_progress(
+                seedlings_id,
+                date_recorded,
+                sprout_date,
+                harvest_quantity,
+                disease_symptom,
+                progress_photo
+            )
+
+            messagebox.showinfo(
+                "Success",
+                f"Saved successfully! The unique ID for {chosen_seedling_nickname.strip()} Progress has been recorded {new_progress_id}."
             )
 
             #self.clear_entries()
