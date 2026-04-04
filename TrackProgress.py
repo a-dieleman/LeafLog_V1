@@ -23,7 +23,7 @@ class NewProgress:
 
 ####                                                     ####
 #### BELOW COMMENTED OUT - WAS USED FOR TERMINAL TESTING ####
-####                                                     ####
+####  showed options from db - UI now handles dropdown   ####
     # def show_seedling_options(self):
     #     cur = self.db.conn.execute("""
     #         SELECT id, seedling_nickname
@@ -40,9 +40,8 @@ class NewProgress:
     #         print(f"ID {row['id']}:{row['seedling_nickname']}")
     #     return rows
 
-#how to handle user entered data
     def populate_progress(self, seedlings_id, date_recorded, sprout_date, harvest_quantity, disease_symptom, progress_photo):
-
+    # cleanup user input for white spaces, proper variables aren't empty, correct date format, and validate variations of Y/N answers
         date_recorded = (date_recorded or "").strip()
         disease_symptom = (disease_symptom or "").strip()
         progress_photo = (progress_photo or "").strip()
@@ -73,7 +72,7 @@ class NewProgress:
             except (ValueError, TypeError):
                 raise ValueError("Harvest Quantity must be a whole number. Example, if your seedling is a greenbean plant, enter the number of pods harvested.")
 
-        #validate seedlings_id choice from list
+        #validate seedlings_id choice from drop down list
         try:
             seedlings_id = int(str(seedlings_id).strip())
         except (ValueError, TypeError):
@@ -89,7 +88,7 @@ class NewProgress:
         if seedling_result is None:
             raise ValueError(f"Seedling ID {seedlings_id} doesn't exist.")
 
-        #Properly formatted data will be entered into the database, otherwise display error
+        #Properly formatted data will be entered into the database, otherwise will display an error
         try:
             cur = self.db.conn.execute("""
                 INSERT INTO Progress (seedlings_id, date_recorded, sprout_date, harvest_quantity, disease_symptom, progress_photo)
@@ -104,7 +103,7 @@ class NewProgress:
 
 ####                                                     ####
 #### BELOW COMMENTED OUT - WAS USED FOR TERMINAL TESTING ####
-####                                                     ####
+####             accept user input and run               ####
 #     def user_input_progress(self):
 #         print("Choose a seedling to add progress info to:")
 #
@@ -133,4 +132,3 @@ class NewProgress:
 #         print(f"Error:{e}")
 #     finally:
 #         db.conn.close()
-#

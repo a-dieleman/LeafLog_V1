@@ -21,7 +21,7 @@ class NewSeedling:
         self.db = db
 ####                                                     ####
 #### BELOW COMMENTED OUT - WAS USED FOR TERMINAL TESTING ####
-####                                                     ####
+####  showed options from db - UI now handles dropdown   ####
     # def show_plant_options(self):
     #     cur = self.db.conn.execute("""
     #         SELECT id, seed_variety, days_to_harvest
@@ -57,9 +57,7 @@ class NewSeedling:
     #     return rows
     #
     def populate_seedling(self, plant_type_id, bed_info_id, seedling_nickname, date_planted):
-    # Remove trailing spaces from seedling_nickname and date_planted, ensure values are not empty,
-        #seedling_nickname = (seedling_nickname or "").strip()
-        #date_planted = (date_planted or "").strip()
+    # Remove trailing spaces from seedling_nickname and date_planted, ensure values are not empty, ensure date formatting
         seedling_nickname = seedling_nickname.strip()
         date_planted = date_planted.strip()
 
@@ -82,11 +80,6 @@ class NewSeedling:
             bed_info_id = int(str(bed_info_id).strip())
         except (ValueError, TypeError):
             raise ValueError("Bed ID must be a whole number.")
-
-        #try:
-         #   planting_date_check = datetime.strptime(date_planted, "%Y-%m-%d").date()
-        #except ValueError:
-            #raise ValueError("Date Planted must be in YYYY-MM-DD format.")
 
         cur = self.db.conn.execute("""
             SELECT days_to_harvest

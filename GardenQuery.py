@@ -6,20 +6,15 @@
     #the option to return to the home page will be at the bottom of the screen
 ###query options
     #list of seedlings by bed
-    #list of diseases
-    #count of planted seeds per variety
-    #
-
-
-import sqlite3
-from datetime import datetime, timedelta
-from main import LeafLogDB
+    #list of diseases by plant variety
+    #count of planted seeds per plant variety
+    #upcoming harvest dates by garden bed
 
 class GardenQueries:
     def __init__(self, db):
         self.db = db
-
-    def seedlings_by_bed_background(self):
+    #query to return lists of seedlings found in each garden bed
+    def query_seedlings_by_bed(self):
         cursor = self.db.conn.execute("""
             SELECT BedInfo.bed_name, Seedlings.seedling_nickname, PlantType.seed_variety
             FROM Seedlings
@@ -31,17 +26,8 @@ class GardenQueries:
         """)
         return cursor.fetchall()
 
-    def seedlings_by_bed_output(self, rows):
-        current_bed = None
-
-        for row in rows:
-            if row ["bed_name"] != current_bed:
-                current_bed = row["bed_name"]
-                print(f"\n----{current_bed}---")
-            print(f"{row['seedling_nickname']}"
-                  f" {row['seed_variety']}")
-
-    def diseases_background(self):
+    #query to return list of diseases by plant type - to help user identify prominent illnesses among plant varieties
+    def query_diseases(self):
         cursor = self.db.conn.execute("""
             SELECT PlantType.seed_variety, Progress.disease_symptom,
             COUNT(DISTINCT Seedlings.id) AS symptom_count
@@ -56,15 +42,8 @@ class GardenQueries:
         """)
         return cursor.fetchall()
 
-    def diseases_output(self, rows):
-        current_type = None
-        for row in rows:
-            if row["seed_variety"] != current_type:
-                current_type = row["seed_variety"]
-                print(f"\n----{current_type}----")
-            print(f"{row['disease_symptom']} found on {row['symptom_count']} plants.")
-
-    def seedlings_per_type_background(self):
+    #query to output how many seedlings, and their nicknames, per plant type
+    def query_seedlings_per_type(self):
         cursor = self.db.conn.execute("""
             SELECT PlantType.seed_variety,
             COUNT (*) AS type_count
@@ -76,17 +55,8 @@ class GardenQueries:
         """)
         return cursor.fetchall()
 
-
-    def seedlings_per_type_output(self, rows):
-        current_type = None
-        for row in rows:
-            if row["seed_variety"] != current_type:
-                current_type = row["seed_variety"]
-                print(f"\n----{current_type}----")
-            print(f"{row['type_count']} planted seeds.")
-
-
-    def upcoming_harvest_background(self):
+    #query to show upcoming harvest days (in order of soonest date) for each garden bed
+    def query_upcoming_harvest(self):
         cursor = self.db.conn.execute("""
             SELECT BedInfo.bed_name, Seedlings.seedling_nickname, PlantType.seed_variety, Seedlings.expected_harvest_date
             FROM Seedlings
@@ -98,23 +68,70 @@ class GardenQueries:
         """)
         return cursor.fetchall()
 
-    def upcoming_harvest_output(self, rows):
+##Formatting output for queries below - originally used print for terminal testing, those lines have been commented out
+    def format_seedlings_by_bed(self, rows):
+        lines = []
+        current_bed = None
+        for row in rows:
+            if row ["bed_name"] != current_bed:
+                current_bed = row["bed_name"]
+                lines.append(f"\n----{current_bed}----")
+            lines.append(f"{row['seedling_nickname']} ({row['seed_variety']})")
+        return"\n".join(lines)
+                #print(f"\n----{current_bed}---")
+            #print(f"{row['seedling_nickname']}"
+                  #f" {row['seed_variety']}")
+
+    # output for terminal testing
+    def format_diseases(self, rows):
+        lines = []
+        current_type = None
+        for row in rows:
+            if row["seed_variety"] != current_type:
+                current_type = row["seed_variety"]
+                lines.append(f"\n----{current_type}----")
+            lines.append(f"{row["disease_symptom"]} found on {row['symptom_count']} plants.")
+        return "\n".join(lines)
+                #print(f"\n----{current_type}----")
+            #print(f"{row['disease_symptom']} found on {row['symptom_count']} plants.")
+
+    # output for terminal testing
+    def format_seedlings_per_type(self, rows):
+        lines = []
+        current_type = None
+        for row in rows:
+            if row["seed_variety"] != current_type:
+                current_type = row["seed_variety"]
+                lines.append(f"\n----{current_type}----")
+            lines.append(f"{row['type_count']} planted seeds.")
+        return "\n".join(lines)
+                #print(f"\n----{current_type}----")
+            #print(f"{row['type_count']} planted seeds.")
+
+    # output for terminal testing
+    def format_upcoming_harvest(self, rows):
+        lines = []
         current_bed = None
         for row in rows:
             if row["bed_name"] != current_bed:
                 current_bed = row["bed_name"]
-                print(f"\n----{current_bed}----")
-            print(f"{row['seedling_nickname']} ({row['seed_variety']}) projected harvest on {row['expected_harvest_date']}")
+                lines.append(f"\n----{current_bed}----")
+            lines.append(f"{row['seedling_nickname']} ({row['seed_variety']}) projected harvest on {row['expected_harvest_date']}")
+        return "\n".join(lines)
+                #print(f"\n----{current_bed}----")
+            #print(f"{row['seedling_nickname']} ({row['seed_variety']}) projected harvest on {row['expected_harvest_date']}")
 
+####                                                     ####
+#### BELOW COMMENTED OUT - WAS USED FOR TERMINAL TESTING ####
+####                                                     ####
+#db = LeafLogDB("test_db_V1.db")
+#queries = GardenQueries(db)
 
-db = LeafLogDB("test_db_V1.db")
-queries = GardenQueries(db)
+#rows = queries.query_seedlings_by_bed()
+#queries.format_seedlings_by_bed(rows)
 
-#rows = queries.seedlings_by_bed_background()
-#queries.seedlings_by_bed_output(rows)
-
-rows = queries.diseases_background()
-queries.diseases_output(rows)
+#rows = queries.diseases_background()
+#queries.diseases_output(rows)
 
 #rows = queries.seedlings_per_type_background()
 #queries.seedlings_per_type_output(rows)

@@ -18,27 +18,29 @@ class NewBed:
     def __init__(self, db):
         self.db = db
 
-    # accept user input
-    def user_input_bed(self):
-        print("Add a new garden bed:")
+####                                                     ####
+#### BELOW COMMENTED OUT - WAS USED FOR TERMINAL TESTING ####
+####              accept user input                      ####
+    # def user_input_bed(self):
+    #     print("Add a new garden bed:")
+    #
+    #     bed_name = input("Choose a name for your garden bed:")
+    #     soil_depth = input("In inches, how deep is the bed:")
+    #     soil_type = input("Briefly describe the soil mixture:")
+    #     sun_exposure = input("Briefly describe the sunlight exposure:")
+    #     shade_structure = input("Describe the shade structure (optional):")
+    #
+    #     new_bed_id = self.populate_bed(
+    #         bed_name, soil_depth, soil_type, sun_exposure, shade_structure
+    #     )
+    #     print(f"Saved successfully! The unique ID for {bed_name} is {new_bed_id}.")
 
-        bed_name = input("Choose a name for your garden bed:")
-        soil_depth = input("In inches, how deep is the bed:")
-        soil_type = input("Briefly describe the soil mixture:")
-        sun_exposure = input("Briefly describe the sunlight exposure:")
-        shade_structure = input("Describe the shade structure (optional):")
-
-        new_bed_id = self.populate_bed(
-            bed_name, soil_depth, soil_type, sun_exposure, shade_structure
-        )
-        print(f"Saved successfully! The unique ID for {bed_name} is {new_bed_id}.")
-
-    # cleanup the user input, validate entries for each type, enter into db, make sure the bed name is unique
     def populate_bed(self, bed_name, soil_depth, soil_type, sun_exposure, shade_structure=None):
-        bed_name = str(bed_name).strip()
-        soil_type = str(soil_type).strip()
-        sun_exposure = str(sun_exposure).strip()
-        shade_structure = str(shade_structure).strip() if shade_structure else None
+    # cleanup the user input, validate entries for each type, enter into db, make sure the bed name is unique
+        bed_name = bed_name.strip()
+        soil_type = soil_type.strip()
+        sun_exposure = sun_exposure.strip()
+        shade_structure = shade_structure.strip() if shade_structure else None
 
         # make sure the required fields aren't empty
         for str_box_name, value in {
@@ -46,14 +48,14 @@ class NewBed:
             "Soil Type": soil_type,
             "Sun Exposure": sun_exposure
         }.items():
-            if not str(value).strip():
+            if not value.strip():
                 raise ValueError(f"The {str_box_name} box cannot be empty!")
 
         # validate numeric fields (must be non-negative integers)
         try:
             soil_depth = int(soil_depth)
             if soil_depth < 0:
-                raise ValueError
+                raise ValueError("Soil Depth must be an integer.")
         except (ValueError, TypeError):
             raise ValueError("Soil Depth cannot be a negative number!")
 

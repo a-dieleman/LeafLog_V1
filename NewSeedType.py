@@ -18,7 +18,9 @@ class NewSeedType:
     def __init__(self, db):
         self.db = db
 
-    # accept user input (this was for the console run program)
+    ####                                                     ####
+    #### BELOW COMMENTED OUT - WAS USED FOR TERMINAL TESTING ####
+    ####              accept user input                      ####
     # def user_input_seed_type(self):
     #     print("Add a new seed type:")
     #
@@ -33,10 +35,10 @@ class NewSeedType:
     #     )
     #     print(f"Saved successfully! The unique ID for {seed_variety} is {new_seed_id}.")
 
-#cleanup user input for white spaces, proper variables aren't empty, and that integers are correct
     def populate_seed_type(self, seed_variety, days_to_germinate, days_to_harvest, seed_depth, support_type=None):
-        seed_variety = str(seed_variety).strip()
-        support_type = str(support_type).strip() if support_type else None
+    # cleanup user input for white spaces, proper variables aren't empty, and that integers are correct
+        seed_variety = seed_variety.strip()
+        support_type = support_type.strip() if support_type else None
 
         # make sure the seed variety isn't empty
         if not seed_variety:
@@ -49,7 +51,7 @@ class NewSeedType:
             "Seed Depth": seed_depth
         }.items():
             try:
-                number = int(str(value).strip())
+                number = int(value)
                 if number < 0:
                     raise ValueError
             except (ValueError, TypeError):

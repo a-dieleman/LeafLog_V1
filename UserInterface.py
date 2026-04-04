@@ -1,9 +1,11 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+from tkinter import scrolledtext
 from NewSeedType import NewSeedType
 from NewBed import NewBed
 from NewSeedling import NewSeedling
 from TrackProgress import NewProgress
+from GardenQuery import GardenQueries
 
 print("userinterface.py loaded")
 #class for the basic window layout that will be consistent across all windows and providing db access via UI
@@ -38,7 +40,8 @@ class FullApp(tk.Tk):
 class Home(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent, bg="YellowGreen")
-
+        self.controller = controller
+        self.run_queries = RunGardenQueries(self, controller.db)
         title = tk.Label(
             self,
             text="Welcome to LeafLog!",
@@ -86,6 +89,47 @@ class Home(tk.Frame):
             padding=12,
             command=lambda: controller.show_frame(AddNewProgress)
         ).pack(pady=10)
+
+        report_buttons_frame = tk.Frame(self, bg="YellowGreen")
+        report_buttons_frame.pack(pady=20)
+
+        tk.Button(
+             report_buttons_frame,
+             text="See Seedlings \nby Garden Bed",
+             width=12,
+             height=7,
+             font=("Arial", 14, "bold"),
+             bg="light blue",
+             fg="white",
+             command=self.run_queries.execute_seedlings_by_bed
+         ).grid(row=0, column=0, padx=22, pady=15, sticky="w")
+
+        tk.Button(
+            report_buttons_frame,
+            text="Disease \nReport",
+            width=12,
+            height=7,
+            font=("Arial", 14, "bold"),
+            command=self.run_queries.execute_diseases_by_type
+        ).grid(row=0, column=1, padx=22, pady=15, sticky="w")
+
+        tk.Button(
+            report_buttons_frame,
+            text="Seedling \nOverview",
+            width=12,
+            height=7,
+            font=("Arial", 14, "bold"),
+            command=self.run_queries.execute_seedlings_per_type
+        ).grid(row=0, column=2, padx=22, pady=15, sticky="w")
+
+        tk.Button(
+            report_buttons_frame,
+            text="Upcoming \nHarvest",
+            width=12,
+            height=7,
+            font=("Arial", 14, "bold"),
+            command=self.run_queries.execute_upcoming_harvest
+        ).grid(row=0, column=3, padx=22, pady=15, sticky="w")
 
 class AddNewSeed(tk.Frame):
     def __init__(self, parent, controller):
@@ -611,3 +655,60 @@ class AddNewProgress(tk.Frame):
 
         except ValueError as e:
             messagebox.showerror("input Error", str(e))
+
+class RunGardenQueries:
+    def __init__(self, parent, db):
+        self.parent=parent
+        self.garden_queries = GardenQueries(db)
+
+    def report_popup_window(self, title, report_text):
+        popup_window = tk.Toplevel(self.parent)
+        popup_window.title(title)
+        popup_window.geometry("600x700")
+
+        tk.Label(
+            popup_window,
+            text=title,
+            font=("Calibri", 18)
+        ).pack(pady=10)
+
+        output_screen = scrolledtext.ScrolledText(
+            popup_window,
+            wrap=tk.WORD,
+            width=80,
+            height=24,
+            font=("Comfortaa", 12)
+        )
+        output_screen.pack(padx=10,pady=10, fill="both", expand=True)
+
+        output_screen.insert("1.0", report_text)
+        output_screen.config(state="disabled")
+
+        button_frame = tk.Frame(popup_window)
+        button_frame.pack(fill="x", pady=10)
+
+        tk.Button(
+            popup_window,
+            text="Back to Homepage",
+            command=popup_window.destroy
+        ).pack(pady=10)
+
+    def execute_seedlings_by_bed(self):
+        rows = self.garden_queries.query_seedlings_by_bed()
+        report_text = self.garden_queries.format_seedlings_by_bed(rows)
+        self.report_popup_window("All Seedlings, Organized by Garden Bed", report_text)
+
+    def execute_diseases_by_type(self):
+        rows = self.garden_queries.query_diseases()
+        report_text = self.garden_queries.format_diseases(rows)
+        self.report_popup_window("Disease Appearances by Plant Type", report_text)
+
+    def execute_seedlings_per_type(self):
+        rows = self.garden_queries.query_seedlings_per_type()
+        report_text = self.garden_queries.format_seedlings_per_type(rows)
+        self.report_popup_window("Full Seedling List by Plant Type", report_text)
+
+    def execute_upcoming_harvest(self):
+        rows = self.garden_queries.query_upcoming_harvest()
+        report_text = self.garden_queries.format_upcoming_harvest(rows)
+        self.report_popup_window("Upcoming Expected Harvest Dates", report_text)
