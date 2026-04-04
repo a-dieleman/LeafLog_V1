@@ -20,7 +20,8 @@ from UserInterface import FullApp
 
 #build tables if they don't already exist
 class LeafLogDB:
-    def __init__(self, db_name="LeafLog_V1.db"):
+    #def __init__(self, db_name="LeafLog_V1.db"):
+    def __init__(self, db_name="test_db_V1.db"):
         self.conn = sqlite3.connect(db_name)
         self.conn.row_factory = sqlite3.Row
         self.conn.execute("PRAGMA foreign_keys = ON;")
@@ -55,14 +56,12 @@ class LeafLogDB:
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             plant_type_id INTEGER NOT NULL, 
             bed_info_id INTEGER NOT NULL,
-            seedling_nickname TEXT NOT NULL, 
+            seedling_nickname TEXT NOT NULL UNIQUE, 
             date_planted TEXT NOT NULL, 
             expected_harvest_date TEXT NOT NULL,
             
             FOREIGN KEY (plant_type_id) REFERENCES PlantType (id),
-            FOREIGN KEY (bed_info_id) REFERENCES BedInfo (id),
-            
-            UNIQUE (plant_type_id, seedling_nickname)
+            FOREIGN KEY (bed_info_id) REFERENCES BedInfo (id)
             )
         """)
 # date_recorded and sprout_date store as 'YYYY-MM-DD'

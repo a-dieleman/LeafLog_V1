@@ -10,7 +10,7 @@ print("userinterface.py loaded")
 class FullApp(tk.Tk):
     def __init__(self, db):
         super().__init__()
-        print("fullall started")
+        print("full app started")
         self.db = db
 
         self.title("LeafLog_V1")
@@ -24,7 +24,7 @@ class FullApp(tk.Tk):
         self.frames={}
 
 #after Home below, include ,AddNewSeedling, AddProgress to parentheses as pages added
-        for Pages in (Home, AddNewSeed, AddNewBed, AddNewSeedling):
+        for Pages in (Home, AddNewSeed, AddNewBed, AddNewSeedling, AddNewProgress):
             frame = Pages(container, self)
             self.frames[Pages] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -77,6 +77,14 @@ class Home(tk.Frame):
             width=25,
             padding=12,
             command=lambda: controller.show_frame(AddNewSeedling)
+        ).pack(pady=10)
+
+        ttk.Button(
+            self,
+            text="Track New Progress",
+            width=25,
+            padding=12,
+            command=lambda: controller.show_frame(AddNewProgress)
         ).pack(pady=10)
 
 class AddNewSeed(tk.Frame):
@@ -487,7 +495,7 @@ class AddNewProgress(tk.Frame):
         #box for date_recorded
         tk.Label(
             newProgress_FormFrame,
-            text="From the dropdown, choose the bed this seed was planted in:",
+            text="Date of Progress recorded (YYYY-MM-DD):",
             font=("Comfortaa",12),
             bg = "orchid1"
         ).grid(row=1, column=0, padx=5, pady=5, sticky="e")
@@ -559,12 +567,12 @@ class AddNewProgress(tk.Frame):
         seedling_rows = cur.fetchall()
 
         seedling_nickname_display = ["---- Select from Dropdown ----"]
-        self.seedling_nickname_dropdown_format = {"---- Select from Dropdown ----": None}
+        self.seedlings_nickname_dropdown_format = {"---- Select from Dropdown ----": None}
 
         for row in seedling_rows:
             list_display = row["seedling_nickname"]
             seedling_nickname_display.append(list_display)
-            self.seedling_nickname_dropdown_format[list_display] = row["id"]
+            self.seedlings_nickname_dropdown_format[list_display] = row["id"]
 
         self.seedling_nickname_dropdown["values"] = seedling_nickname_display
         if seedling_nickname_display:
