@@ -16,6 +16,7 @@
 
 import sqlite3
 from datetime import datetime, timedelta
+from Validation import require_date, text_is_optional, num_is_optional, num_is_required, handle_yn
 
 class NewProgress:
     def __init__(self, db):
@@ -42,41 +43,55 @@ class NewProgress:
 
     def populate_progress(self, seedlings_id, date_recorded, sprout_date, harvest_quantity, disease_symptom, progress_photo):
     # cleanup user input for white spaces, proper variables aren't empty, correct date format, and validate variations of Y/N answers
-        date_recorded = (date_recorded or "").strip()
-        disease_symptom = (disease_symptom or "").strip()
-        progress_photo = (progress_photo or "").strip()
-        sprout_date = (sprout_date or "").strip().lower()
+        date_recorded, check_date = require_date(date_recorded, "Date Recorded")
+        disease_symptom = text_is_optional(disease_symptom)
+        progress_photo = text_is_optional(progress_photo)
+        harvest_quantity = num_is_optional(harvest_quantity, default=0, field_name="Harvest Quantity")
+        seedlings_id = num_is_required(seedlings_id, "Seedling ID")
 
-        # validate the date entry for date_recorded
-        if date_recorded == "":
-            raise ValueError("The date of recording cannot be blank.")
-
-        try:
-            check_date = datetime.strptime(date_recorded, "%Y-%m-%d").date()
-        except ValueError:
-            raise ValueError("Date Recorded must be in YYYY-MM-DD format.")
-
-        if sprout_date in ["yes", "y", "Yes"]:
+        sprout_yn_answer = handle_yn(sprout_date, "Sprout Date")
+        if sprout_yn_answer == "yes":
             sprout_date = check_date.strftime("%Y-%m-%d")
-        elif sprout_date in ["no", "n", "No", ""]:
+        else:
             sprout_date = None
-        else:
-            raise ValueError("Input must be yes, no, or blank.")
-
-        #validate the number for harvest_quantity
-        if str(harvest_quantity).strip()=="":
-            harvest_quantity = 0
-        else:
-            try:
-                harvest_quantity = int(str(harvest_quantity).strip())
-            except (ValueError, TypeError):
-                raise ValueError("Harvest Quantity must be a whole number. Example, if your seedling is a greenbean plant, enter the number of pods harvested.")
-
-        #validate seedlings_id choice from drop down list
-        try:
-            seedlings_id = int(str(seedlings_id).strip())
-        except (ValueError, TypeError):
-            raise ValueError("Seedling ID must be a whole number.")
+    ####                                                     ####
+    ####   BELOW COMMENTED OUT - REPLACED BY VALIDATION.PY   ####
+    ####                                                     ####
+    #     date_recorded = (date_recorded or "").strip()
+    #     disease_symptom = (disease_symptom or "").strip()
+    #     progress_photo = (progress_photo or "").strip()
+    #     sprout_date = (sprout_date or "").strip().lower()
+    #
+    #     # validate the date entry for date_recorded
+    #     if date_recorded == "":
+    #         raise ValueError("The date of recording cannot be blank.")
+    #
+    #     try:
+    #         check_date = datetime.strptime(date_recorded, "%Y-%m-%d").date()
+    #     except ValueError:
+    #         raise ValueError("Date Recorded must be in YYYY-MM-DD format.")
+    #
+    #     if sprout_date in ["yes", "y", "Yes"]:
+    #         sprout_date = check_date.strftime("%Y-%m-%d")
+    #     elif sprout_date in ["no", "n", "No", ""]:
+    #         sprout_date = None
+    #     else:
+    #         raise ValueError("Input must be yes, no, or blank.")
+    #
+    #     #validate the number for harvest_quantity
+    #     if str(harvest_quantity).strip()=="":
+    #         harvest_quantity = 0
+    #     else:
+    #         try:
+    #             harvest_quantity = int(str(harvest_quantity).strip())
+    #         except (ValueError, TypeError):
+    #             raise ValueError("Harvest Quantity must be a whole number. Example, if your seedling is a greenbean plant, enter the number of pods harvested.")
+    #
+    #     #validate seedlings_id choice from drop down list
+    #     try:
+    #         seedlings_id = int(str(seedlings_id).strip())
+    #     except (ValueError, TypeError):
+    #         raise ValueError("Seedling ID must be a whole number.")
 
         cur = self.db.conn.execute("""
             SELECT id

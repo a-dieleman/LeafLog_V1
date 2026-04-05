@@ -13,8 +13,6 @@
 
 #import sqlite and UI
 import sqlite3
-#import NewSeedType
-#import NewBed
 from UserInterface import FullApp
 
 

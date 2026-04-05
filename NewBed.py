@@ -13,6 +13,7 @@
     #shade_structure - str
 
 import sqlite3
+from LeafLog.Validation import text_is_required, num_is_positive, text_is_optional
 
 class NewBed:
     def __init__(self, db):
@@ -37,28 +38,36 @@ class NewBed:
 
     def populate_bed(self, bed_name, soil_depth, soil_type, sun_exposure, shade_structure=None):
     # cleanup the user input, validate entries for each type, enter into db, make sure the bed name is unique
-        bed_name = bed_name.strip()
-        soil_type = soil_type.strip()
-        sun_exposure = sun_exposure.strip()
-        shade_structure = shade_structure.strip() if shade_structure else None
+        bed_name = text_is_required(bed_name, "Garden Bed")
+        soil_depth = num_is_positive(soil_depth, "Soil Depth")
+        soil_type = text_is_required(soil_type, "Soil Type")
+        sun_exposure = text_is_required(sun_exposure, "Sun Exposure")
+        shade_structure = text_is_optional(shade_structure)
 
-        # make sure the required fields aren't empty
-        for str_box_name, value in {
-            "Bed Name": bed_name,
-            "Soil Type": soil_type,
-            "Sun Exposure": sun_exposure
-        }.items():
-            if not value.strip():
-                raise ValueError(f"The {str_box_name} box cannot be empty!")
-
-        # validate numeric fields (must be non-negative integers)
-        try:
-            soil_depth = int(soil_depth)
-            if soil_depth < 0:
-                raise ValueError("Soil Depth must be an integer.")
-        except (ValueError, TypeError):
-            raise ValueError("Soil Depth cannot be a negative number!")
-
+    ####                                                     ####
+    #### BELOW COMMENTED OUT - WAS USED FOR TERMINAL TESTING ####
+    ####              accept user input                      ####
+        # bed_name = bed_name.strip()
+        # soil_type = soil_type.strip()
+        # sun_exposure = sun_exposure.strip()
+        # shade_structure = shade_structure.strip() if shade_structure else None
+        #
+        # # make sure the required fields aren't empty
+        # for str_box_name, value in {
+        #     "Bed Name": bed_name,
+        #     "Soil Type": soil_type,
+        #     "Sun Exposure": sun_exposure
+        # }.items():
+        #     if not value.strip():
+        #         raise ValueError(f"The {str_box_name} box cannot be empty!")
+        #
+        # # validate numeric fields (must be non-negative integers)
+        # try:
+        #     soil_depth = int(soil_depth)
+        #     if soil_depth < 0:
+        #         raise ValueError("Soil Depth must be an integer.")
+        # except (ValueError, TypeError):
+        #     raise ValueError("Soil Depth cannot be a negative number!")
 
         try:
             cur = self.db.conn.execute(

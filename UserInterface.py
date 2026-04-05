@@ -131,6 +131,8 @@ class Home(tk.Frame):
             command=self.run_queries.execute_upcoming_harvest
         ).grid(row=0, column=3, padx=22, pady=15, sticky="w")
 
+
+
 class AddNewSeed(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent, bg="LightBlue")

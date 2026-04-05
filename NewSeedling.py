@@ -15,6 +15,7 @@
 
 import sqlite3
 from datetime import datetime, timedelta
+from Validation import text_is_required, require_date, num_is_required
 
 class NewSeedling:
     def __init__(self, db):
@@ -58,28 +59,36 @@ class NewSeedling:
     #
     def populate_seedling(self, plant_type_id, bed_info_id, seedling_nickname, date_planted):
     # Remove trailing spaces from seedling_nickname and date_planted, ensure values are not empty, ensure date formatting
-        seedling_nickname = seedling_nickname.strip()
-        date_planted = date_planted.strip()
+        seedling_nickname = text_is_required(seedling_nickname, "Seedling Nickname")
+        date_planted, planting_date_check = require_date(date_planted, "Planting Date")
+        plant_type_id = num_is_required(plant_type_id, "Plant Type ID")
+        bed_info_id = num_is_required(bed_info_id, "Garden Bed ID")
 
-        if seedling_nickname == "":
-            raise ValueError("Seedling Name cannot be empty!")
-        if date_planted == "":
-            raise ValueError("Planting date cannot be empty!")
-
-        try:
-            planting_date_check = datetime.strptime(date_planted, "%Y-%m-%d").date()
-        except ValueError:
-            raise ValueError("Date Planted must be in YYYY-MM-DD format.")
-
-        try:
-            plant_type_id = int(str(plant_type_id).strip())
-        except (ValueError, TypeError):
-            raise ValueError("Plant Type ID must be a whole number.")
-
-        try:
-            bed_info_id = int(str(bed_info_id).strip())
-        except (ValueError, TypeError):
-            raise ValueError("Bed ID must be a whole number.")
+    ####                                                     ####
+    ####   BELOW COMMENTED OUT - REPLACED BY VALIDATION.PY   ####
+    ####                                                     ####
+    #     seedling_nickname = seedling_nickname.strip()
+    #     date_planted = date_planted.strip()
+    #
+    #     if seedling_nickname == "":
+    #         raise ValueError("Seedling Name cannot be empty!")
+    #     if date_planted == "":
+    #         raise ValueError("Planting date cannot be empty!")
+    #
+    #     try:
+    #         planting_date_check = datetime.strptime(date_planted, "%Y-%m-%d").date()
+    #     except ValueError:
+    #         raise ValueError("Date Planted must be in YYYY-MM-DD format.")
+    #
+    #     try:
+    #         plant_type_id = int(str(plant_type_id).strip())
+    #     except (ValueError, TypeError):
+    #         raise ValueError("Plant Type ID must be a whole number.")
+    #
+    #     try:
+    #         bed_info_id = int(str(bed_info_id).strip())
+    #     except (ValueError, TypeError):
+    #         raise ValueError("Bed ID must be a whole number.")
 
         cur = self.db.conn.execute("""
             SELECT days_to_harvest
@@ -98,10 +107,10 @@ class NewSeedling:
 
 
         cur = self.db.conn.execute("""
-                            SELECT id
-                            FROM BedInfo
-                            WHERE id = ?
-                            """, (bed_info_id,))
+            SELECT id
+            FROM BedInfo
+            WHERE id = ?
+            """, (bed_info_id,))
         bed_result = cur.fetchone()
 
         if bed_result is None:

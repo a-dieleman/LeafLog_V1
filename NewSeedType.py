@@ -13,6 +13,9 @@
     #support_type - str (this variable must accept blanks that translate to NULL values)
 
 import sqlite3
+import Validation
+from LeafLog.Validation import text_is_required, text_is_optional, num_is_positive
+
 
 class NewSeedType:
     def __init__(self, db):
@@ -37,35 +40,43 @@ class NewSeedType:
 
     def populate_seed_type(self, seed_variety, days_to_germinate, days_to_harvest, seed_depth, support_type=None):
     # cleanup user input for white spaces, proper variables aren't empty, and that integers are correct
-        seed_variety = seed_variety.strip()
-        support_type = support_type.strip() if support_type else None
+        seed_variety = text_is_required(seed_variety, "Seed Variety")
+        support_type = text_is_optional(support_type)
+        days_to_harvest = num_is_positive(days_to_harvest, "Days to Harvest")
+        days_to_germinate = num_is_positive(days_to_germinate, "Days to Germinate")
+        seed_depth = num_is_positive(seed_depth, "Planting Depth")
+    ####                                                     ####
+    ####   BELOW COMMENTED OUT - REPLACED BY VALIDATION.PY   ####
+    ####                                                     ####
+    #     seed_variety = seed_variety.strip()
+    #     support_type = support_type.strip() if support_type else None
+    #
+    #     # make sure the seed variety isn't empty
+    #     if not seed_variety:
+    #         raise ValueError("The Seed Variety box cannot be empty!")
+    #
+    #     # validate numeric fields (must be non-negative integers)
+    #     for name, value in {
+    #         "Days to Germinate": days_to_germinate,
+    #         "Days to Harvest": days_to_harvest,
+    #         "Seed Depth": seed_depth
+    #     }.items():
+    #         try:
+    #             number = int(value)
+    #             if number < 0:
+    #                 raise ValueError
+    #         except (ValueError, TypeError):
+    #             raise ValueError(f"{name} must be a non-negative integer.")
+    #
+    #         if name == "Days to Germinate":
+    #             days_to_germinate = number
+    #         elif name == "Days to Harvest":
+    #             days_to_harvest = number
+    #         else:
+    #             seed_depth = number
 
-        # make sure the seed variety isn't empty
-        if not seed_variety:
-            raise ValueError("The Seed Variety box cannot be empty!")
-
-        # validate numeric fields (must be non-negative integers)
-        for name, value in {
-            "Days to Germinate": days_to_germinate,
-            "Days to Harvest": days_to_harvest,
-            "Seed Depth": seed_depth
-        }.items():
-            try:
-                number = int(value)
-                if number < 0:
-                    raise ValueError
-            except (ValueError, TypeError):
-                raise ValueError(f"{name} must be a non-negative integer.")
-
-            if name == "Days to Germinate":
-                days_to_germinate = number
-            elif name == "Days to Harvest":
-                days_to_harvest = number
-            else:
-                seed_depth = number
-
-        # insert into db, make sure the seed name is unique.
         try:
+            # insert into db, make sure the seed name is unique.
             cur = self.db.conn.execute(
                 """
                 INSERT INTO PlantType (seed_variety, days_to_germinate, days_to_harvest, seed_depth, support_type)
