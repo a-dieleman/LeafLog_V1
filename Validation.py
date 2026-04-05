@@ -1,6 +1,8 @@
 #file made to handle validation in order to simplify other methods and support future scalability
 
 from datetime import datetime
+import tkinter as tk
+from tkinter import ttk
 
 #method to check TEXT fields that are required
 def text_is_required(value, field_name):
@@ -69,4 +71,11 @@ def dropdown_required(chosen_value, results, field_name):
     if chosen_value not in results:
         raise ValueError(f"Entry in {field_name} is invalid. Please select option from provided dropdown.")
     return results[chosen_value]
+
+def clear_text(widgets):
+    for widget in widgets:
+        if isinstance(widget, ttk.Combobox):
+            widget.set("----Select from Dropdown----")
+        elif isinstance(widget, tk.Entry):
+            widget.delete(0, tk.END)
 

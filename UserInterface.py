@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from tkinter import scrolledtext
+from Validation import clear_text
 from NewSeedType import NewSeedType
 from NewBed import NewBed
 from NewSeedling import NewSeedling
@@ -131,8 +132,6 @@ class Home(tk.Frame):
             command=self.run_queries.execute_upcoming_harvest
         ).grid(row=0, column=3, padx=22, pady=15, sticky="w")
 
-
-
 class AddNewSeed(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent, bg="LightBlue")
@@ -209,7 +208,7 @@ class AddNewSeed(tk.Frame):
         ttk.Button(
             self,
             text="Back to Homepage",
-            command=lambda: controller.show_frame(Home)
+            command=self.clear_and_home
         ).pack(side="bottom", pady = 30)
 
 #save data on button press
@@ -239,16 +238,18 @@ class AddNewSeed(tk.Frame):
 
         except ValueError as e:
             messagebox.showerror("input Error", str(e))
+    def clear_entries(self):
+             clear_text([
+                 self.seed_variety_entry,
+                 self.days_to_germinate_entry,
+                 self.days_to_harvest_entry,
+                 self.seed_depth_entry,
+                 self.support_type_entry
+            ])
 
-    # def clear_entries(self):
-    #     self.seed_variety_entry.delete(0, tk.END)
-    #     self.days_to_germinate_entry.delete(0, tk.END)
-    #     self.days_to_harvest_entry.delete(0, tk.END)
-    #     self.seed_depth_entry.delete(0, tk.END)
-    #     self.support_type_entry.delete(0, tk.END)
-
-    #def gray_placeholder(value, placeholder):
-     #   return "" if value == placeholder else value
+    def clear_and_home(self):
+        self.clear_entries()
+        self.controller.show_frame(Home)
 
 class AddNewBed(tk.Frame):
     def __init__(self, parent, controller):
@@ -325,7 +326,7 @@ class AddNewBed(tk.Frame):
         ttk.Button(
             self,
             text="Back to Homepage",
-            command=lambda: controller.show_frame(Home)
+            command=self.clear_and_home
         ).pack(side="bottom", pady=30)
 
     # save data on button press
@@ -356,12 +357,18 @@ class AddNewBed(tk.Frame):
         except ValueError as e:
             messagebox.showerror("Input Error", str(e))
 
-    # def clear_entries(self):
-    #     self.bed_name_entry.delete(0, tk.END)
-    #     self.soil_depth_entry.delete(0, tk.END)
-    #     self.soil_type_entry.delete(0, tk.END)
-    #     self.sun_exposure_entry.delete(0, tk.END)
-    #     self.shade_structure_entry.delete(0, tk.END)
+    def clear_entries(self):
+             clear_text([
+                 self.bed_name_entry,
+                 self.soil_depth_entry,
+                 self.soil_type_entry,
+                 self.sun_exposure_entry,
+                 self.shade_structure_entry
+            ])
+
+    def clear_and_home(self):
+        self.clear_entries()
+        self.controller.show_frame(Home)
 
 class AddNewSeedling(tk.Frame):
     def __init__(self, parent, controller):
@@ -433,7 +440,7 @@ class AddNewSeedling(tk.Frame):
         ttk.Button(
             self,
             text="Back to Homepage",
-            command=lambda: controller.show_frame(Home)
+            command=self.clear_and_home
         ).pack(side="bottom", pady = 30)
 
         self.display_dropdown_options()
@@ -509,6 +516,18 @@ class AddNewSeedling(tk.Frame):
 
         except ValueError as e:
             messagebox.showerror("input Error", str(e))
+
+    def clear_entries(self):
+             clear_text([
+                 self.plant_type_dropdown,
+                 self.garden_bed_dropdown,
+                 self.seedling_nickname_entry,
+                 self.date_planted_entry
+            ])
+
+    def clear_and_home(self):
+        self.clear_entries()
+        self.controller.show_frame(Home)
 
 class AddNewProgress(tk.Frame):
     def __init__(self, parent, controller):
@@ -599,7 +618,7 @@ class AddNewProgress(tk.Frame):
         ttk.Button(
             self,
             text="Back to Homepage",
-            command=lambda: controller.show_frame(Home)
+            command=self.clear_and_home
         ).pack(side="bottom", pady = 30)
 
         self.display_dropdown_options()
@@ -657,6 +676,20 @@ class AddNewProgress(tk.Frame):
 
         except ValueError as e:
             messagebox.showerror("input Error", str(e))
+
+    def clear_entries(self):
+             clear_text([
+                 self.seedling_nickname_dropdown,
+                 self.date_recorded_entry,
+                 self.sprout_date_entry,
+                 self.harvest_quantity_entry,
+                 self.disease_symptom_entry,
+                 self.progress_photo_entry
+            ])
+
+    def clear_and_home(self):
+        self.clear_entries()
+        self.controller.show_frame(Home)
 
 class RunGardenQueries:
     def __init__(self, parent, db):

@@ -82,3 +82,4 @@ class NewBed:
 
         except sqlite3.IntegrityError:
             raise ValueError(f"'{bed_name}' already exists. Please enter a different name for the garden bed.")
+
