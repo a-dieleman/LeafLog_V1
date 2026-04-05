@@ -13,7 +13,7 @@
     #shade_structure - str
 
 import sqlite3
-from LeafLog.Validation import text_is_required, num_is_positive, text_is_optional
+from Validation import text_is_required, num_is_positive, text_is_optional
 
 class NewBed:
     def __init__(self, db):

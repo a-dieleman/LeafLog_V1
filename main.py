@@ -18,8 +18,8 @@ from UserInterface import FullApp
 
 #build tables if they don't already exist
 class LeafLogDB:
-    #def __init__(self, db_name="LeafLog_V1.db"):
-    def __init__(self, db_name="test_db_V1.db"):
+    def __init__(self, db_name="LeafLog_V1.db"):
+    #def __init__(self, db_name="test_db_V1.db"):
         self.conn = sqlite3.connect(db_name)
         self.conn.row_factory = sqlite3.Row
         self.conn.execute("PRAGMA foreign_keys = ON;")

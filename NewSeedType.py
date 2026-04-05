@@ -14,7 +14,7 @@
 
 import sqlite3
 import Validation
-from LeafLog.Validation import text_is_required, text_is_optional, num_is_positive
+from Validation import text_is_required, text_is_optional, num_is_positive
 
 
 class NewSeedType:

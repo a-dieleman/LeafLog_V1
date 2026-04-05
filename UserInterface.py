@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from tkinter import scrolledtext
+from tkinter import filedialog
 from Validation import clear_text
 from NewSeedType import NewSeedType
 from NewBed import NewBed
@@ -36,6 +37,8 @@ class FullApp(tk.Tk):
 
     def show_frame(self, page):
         frame = self.frames[page]
+        if hasattr(frame, "refresh_data"):
+            frame.refresh_data()
         frame.tkraise()
 
 class Home(tk.Frame):
@@ -100,14 +103,12 @@ class Home(tk.Frame):
              width=12,
              height=7,
              font=("Arial", 14, "bold"),
-             bg="light blue",
-             fg="white",
              command=self.run_queries.execute_seedlings_by_bed
          ).grid(row=0, column=0, padx=22, pady=15, sticky="w")
 
         tk.Button(
             report_buttons_frame,
-            text="Disease \nReport",
+            text="Disease\nReport",
             width=12,
             height=7,
             font=("Arial", 14, "bold"),
@@ -116,7 +117,7 @@ class Home(tk.Frame):
 
         tk.Button(
             report_buttons_frame,
-            text="Seedling \nOverview",
+            text="Seedling\nOverview",
             width=12,
             height=7,
             font=("Arial", 14, "bold"),
@@ -211,7 +212,7 @@ class AddNewSeed(tk.Frame):
             command=self.clear_and_home
         ).pack(side="bottom", pady = 30)
 
-#save data on button press
+#save data on Save button
     def save_seed_type(self):
         seed_variety = self.seed_variety_entry.get()
         days_to_germinate = self.days_to_germinate_entry.get()
@@ -233,11 +234,12 @@ class AddNewSeed(tk.Frame):
                 f"Saved successfully! The unique ID for {seed_variety.strip()} is {new_seed_id}."
             )
 
-            #self.clear_entries()
+            self.clear_entries()
             self.controller.show_frame(Home)
 
         except ValueError as e:
             messagebox.showerror("input Error", str(e))
+    #clear entries when called
     def clear_entries(self):
              clear_text([
                  self.seed_variety_entry,
@@ -246,7 +248,7 @@ class AddNewSeed(tk.Frame):
                  self.seed_depth_entry,
                  self.support_type_entry
             ])
-
+    #clear and go home on Back button
     def clear_and_home(self):
         self.clear_entries()
         self.controller.show_frame(Home)
@@ -351,7 +353,7 @@ class AddNewBed(tk.Frame):
                 f"Saved successfully! The unique ID for {bed_name.strip()} is {new_bed_id}."
             )
 
-            #self.clear_entries()
+            self.clear_entries()
             self.controller.show_frame(Home)
 
         except ValueError as e:
@@ -445,6 +447,9 @@ class AddNewSeedling(tk.Frame):
 
         self.display_dropdown_options()
 
+    def refresh_data(self):
+        self.display_dropdown_options()
+
     def display_dropdown_options(self):
         cur = self.controller.db.conn.execute("""
             SELECT id, seed_variety
@@ -511,7 +516,7 @@ class AddNewSeedling(tk.Frame):
                 f"Saved successfully! The unique ID for {seedling_nickname.strip()} is {new_seedling_id}."
             )
 
-            #self.clear_entries()
+            self.clear_entries()
             self.controller.show_frame(Home)
 
         except ValueError as e:
@@ -604,8 +609,15 @@ class AddNewProgress(tk.Frame):
             font=("Comfortaa",12),
             bg="orchid1"
         ).grid(row=5, column=0, padx=5, pady=5, sticky="e")
+
         self.progress_photo_entry = ttk.Entry(newProgress_FormFrame, width=40)
         self.progress_photo_entry.grid(row=5, column=1, padx=5, pady=5)
+
+        ttk.Button(
+            newProgress_FormFrame,
+            text="Browse Images",
+            command=self.select_photo_filepath
+        ).grid(row=5, column=2, padx=5, pady=5)
 
         #save button
         ttk.Button(
@@ -621,6 +633,9 @@ class AddNewProgress(tk.Frame):
             command=self.clear_and_home
         ).pack(side="bottom", pady = 30)
 
+        self.display_dropdown_options()
+
+    def refresh_data(self):
         self.display_dropdown_options()
 
     def display_dropdown_options(self):
@@ -644,6 +659,15 @@ class AddNewProgress(tk.Frame):
             self.seedling_nickname_dropdown.current(0)
         else:
             self.seedling_nickname_dropdown.set("")
+
+    def select_photo_filepath(self):
+        file_path = filedialog.askopenfilename(
+            title="Select your image",
+            filetypes=[("Image Files", "*.png *.jpg *.jpeg"), ("All Files", "*.*")]
+        )
+        if file_path:
+            self.progress_photo_entry.delete(0, tk.END)
+            self.progress_photo_entry.insert(0, file_path)
 
     #save info below -  needs updated - current is copy from new bed section
     def save_progress(self):
@@ -671,7 +695,7 @@ class AddNewProgress(tk.Frame):
                 f"Saved successfully! The unique ID for {chosen_seedling_nickname.strip()} Progress has been recorded {new_progress_id}."
             )
 
-            #self.clear_entries()
+            self.clear_entries()
             self.controller.show_frame(Home)
 
         except ValueError as e:
