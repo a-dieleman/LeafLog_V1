@@ -234,8 +234,7 @@ class AddNewSeed(tk.Frame):
                 f"Saved successfully! The unique ID for {seed_variety.strip()} is {new_seed_id}."
             )
 
-            self.clear_entries()
-            self.controller.show_frame(Home)
+            self.clear_and_home()
 
         except ValueError as e:
             messagebox.showerror("input Error", str(e))
@@ -248,7 +247,7 @@ class AddNewSeed(tk.Frame):
                  self.seed_depth_entry,
                  self.support_type_entry
             ])
-    #clear and go home on Back button
+    #clear and go home on Back and after Saving
     def clear_and_home(self):
         self.clear_entries()
         self.controller.show_frame(Home)
@@ -353,8 +352,7 @@ class AddNewBed(tk.Frame):
                 f"Saved successfully! The unique ID for {bed_name.strip()} is {new_bed_id}."
             )
 
-            self.clear_entries()
-            self.controller.show_frame(Home)
+            self.clear_and_home()
 
         except ValueError as e:
             messagebox.showerror("Input Error", str(e))
@@ -516,8 +514,7 @@ class AddNewSeedling(tk.Frame):
                 f"Saved successfully! The unique ID for {seedling_nickname.strip()} is {new_seedling_id}."
             )
 
-            self.clear_entries()
-            self.controller.show_frame(Home)
+            self.clear_and_home()
 
         except ValueError as e:
             messagebox.showerror("input Error", str(e))
@@ -695,8 +692,7 @@ class AddNewProgress(tk.Frame):
                 f"Saved successfully! The unique ID for {chosen_seedling_nickname.strip()} Progress has been recorded {new_progress_id}."
             )
 
-            self.clear_entries()
-            self.controller.show_frame(Home)
+            self.clear_and_home()
 
         except ValueError as e:
             messagebox.showerror("input Error", str(e))

@@ -64,13 +64,13 @@ def handle_yn(value, field_name="Input"):
     raise ValueError(f"The {field_name} must be yes, no, or blank.")
 
 #method to help handle dropdown validation
-def dropdown_required(chosen_value, results, field_name):
-    chosen_value = str(chosen_value).strip()
-    if not chosen_value:
-        raise ValueError(f"The {field_name} dropdown must be selected.")
-    if chosen_value not in results:
-        raise ValueError(f"Entry in {field_name} is invalid. Please select option from provided dropdown.")
-    return results[chosen_value]
+# def dropdown_required(chosen_value, results, field_name):
+#     chosen_value = str(chosen_value).strip()
+#     if not chosen_value:
+#         raise ValueError(f"An option in the {field_name} dropdown must be selected.")
+#     if chosen_value not in results:
+#         raise ValueError(f"Entry in {field_name} is invalid. Please select option from provided dropdown.")
+#     return results[chosen_value]
 
 def clear_text(widgets):
     for widget in widgets:
